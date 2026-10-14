@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telink SigMesh - Giao Diện Xem Trước (UI Preview)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', -apple-system, sans-serif; }
+    body {
+      background: #0f172a;
+      color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 24px 16px;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+    header p {
+      font-size: 14px;
+      color: #94a3b8;
+    }
+    .main-container {
+      display: flex;
+      gap: 32px;
+      align-items: flex-start;
+      max-width: 1000px;
+      width: 100%;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    /* Phone Mockup Frame */
+    .phone-wrapper {
+      width: 360px;
+      height: 720px;
+      background: #000;
+      border-radius: 44px;
+      padding: 12px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      position: relative;
+    }
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background: #f8fafc;
+      border-radius: 34px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      color: #1e293b;
+      position: relative;
+    }
+    /* Status bar */
+    .status-bar {
+      height: 32px;
+      background: #0284c7;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 16px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    /* App Bar */
+    .app-bar {
+      height: 52px;
+      background: #0284c7;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .app-bar h2 {
+      font-size: 17px;
+      font-weight: 600;
+    }
+    .app-bar .actions {
+      display: flex;
+      gap: 12px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    /* Content Area */
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+      background: #f1f5f9;
+    }
+
+    /* Card */
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      border: 1px solid #e2e8f0;
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Device item */
+    .device-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .device-row:last-child { border-bottom: none; }
+    .device-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .device-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: #e0f2fe;
+      color: #0284c7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+    .device-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0f172a;
+    }
+    .device-meta {
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    /* Switch toggle */
+    .toggle {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: #cbd5e1;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .toggle.active {
+      background: #0284c7;
+    }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+    .toggle.active::after {
+      transform: translateX(20px);
+    }
+
+    /* Control sliders */
+    .slider-group {
+      margin-top: 8px;
+    }
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #475569;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    input[type=range] {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      outline: none;
+      -webkit-appearance: none;
+      background: #e2e8f0;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #0284c7;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    /* Color picker preview */
+    .color-wheel {
+      width: 100%;
+      height: 90px;
+      border-radius: 12px;
+      background: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+      margin-top: 8px;
+      position: relative;
+      cursor: crosshair;
+    }
+    .color-indicator {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      height: 58px;
+      background: white;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      color: #94a3b8;
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .nav-item.active {
+      color: #0284c7;
+      font-weight: 600;
+    }
+    .nav-icon {
+      font-size: 18px;
+    }
+
+    /* Side Control Panel for Vibe Coding */
+    .control-panel {
+      width: 380px;
+      background: #1e293b;
+      border-radius: 20px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .panel-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #38bdf8;
+      margin-bottom: 16px;
+    }
+    .panel-section {
+      margin-bottom: 20px;
+    }
+    .panel-section label {
+      display: block;
+      font-size: 12px;
+      color: #94a3b8;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .panel-section select, .panel-section input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+      outline: none;
+    }
+    .btn-action {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      margin-top: 10px;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+    .btn-action:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #0284c7;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>📱 Trình Xem Trước Giao Diện (TelinkSigMesh)</h1>
+    <p>Chỉnh sửa giao diện trực quan và xem trước ngay trên trình duyệt trước khi Build APK</p>
+  </header>
+
+  <div class="main-container">
+
+    <!-- Phone Simulator -->
+    <div class="phone-wrapper">
+      <div class="phone-screen">
+        <!-- Status Bar -->
+        <div class="status-bar" id="appStatusBar">
+          <span>18:30</span>
+          <span>⚡ 5G 100%</span>
+        </div>
+
+        <!-- App Header -->
+        <div class="app-bar" id="appHeader">
+          <h2 id="appHeaderTitle">Telink SIG Mesh</h2>
+          <div class="actions">
+            <span title="Thêm Node mới (Provision)">➕</span>
+            <span title="Cài đặt">⚙️</span>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content-area" id="screenContent">
+          <!-- Network Summary Card -->
+          <div class="card">
+            <div class="card-title">
+              <span>Mạng Mesh Hiện Tại</span>
+              <span class="badge" id="netBadge">Online</span>
+            </div>
+            <div style="font-size: 12px; color: #475569;">
+              <div>Mesh Name: <b>Telink-Home</b></div>
+              <div>Số thiết bị: <b id="deviceCount">3 nodes</b></div>
+              <div>AppKey: <b>Bound (0x0001)</b></div>
+            </div>
+          </div>
+
+          <!-- Quick Test Controls -->
+          <div class="card">
+            <div class="card-title">
+              <span>Điều khiển nhanh (All Nodes)</span>
+            </div>
+            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+              <button onclick="allOnOff(true)" style="flex:1; padding:8px; border:none; background:#0284c7; color:white; border-radius:8px; font-weight:600; cursor:pointer;">Bật Tất Cả</button>
+              <button onclick="allOnOff(false)" style="flex:1; padding:8px; border:none; background:#64748b; color:white; border-radius:8px; font-weight:600; cursor:pointer;">Tắt Tất Cả</button>
+            </div>
+            <div class="slider-group">
+              <div class="slider-label">
+                <span>Độ sáng (Lightness)</span>
+                <span id="lumVal">80%</span>
+              </div>
+              <input type="range" min="0" max="100" value="80" oninput="document.getElementById('lumVal').innerText = this.value + '%'">
+            </div>
+            <div class="slider-group" style="margin-top: 10px;">
+              <div class="slider-label">
+                <span>Nhiệt độ màu (CTL Temp)</span>
+                <span id="tempVal">4000K</span>
+              </div>
+              <input type="range" min="2700" max="6500" value="4000" oninput="document.getElementById('tempVal').innerText = this.value + 'K'">
+            </div>
+          </div>
+
+          <!-- Node List -->
+          <div class="card">
+            <div class="card-title">
+              <span>Danh Sách Thiết Bị</span>
+              <span style="font-size:11px; color:#0284c7; cursor:pointer;" onclick="addMockDevice()">+ Thêm mẫu</span>
+            </div>
+
+            <div id="deviceListContainer">
+              <!-- Item 1 -->
+              <div class="device-row">
+                <div class="device-info">
+                  <div class="device-icon">💡</div>
+                  <div>
+                    <div class="device-name">Đèn Phòng Khách</div>
+                    <div class="device-meta">Unicast: 0x0002 • TLSR8258</div>
+                  </div>
+                </div>
+                <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+              </div>
+
+              <!-- Item 2 -->
+              <div class="device-row">
+                <div class="device-info">
+                  <div class="device-icon">💡</div>
+                  <div>
+                    <div class="device-name">Đèn Bàn Làm Việc</div>
+                    <div class="device-meta">Unicast: 0x0003 • TLSR8258</div>
+                  </div>
+                </div>
+                <div class="toggle" onclick="this.classList.toggle('active')"></div>
+              </div>
+
+              <!-- Item 3 -->
+              <div class="device-row">
+                <div class="device-info">
+                  <div class="device-icon">🔌</div>
+                  <div>
+                    <div class="device-name">Ổ Cắm Quạt</div>
+                    <div class="device-meta">Unicast: 0x0004 • TLSR8278</div>
+                  </div>
+                </div>
+                <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Color RGB Test Card -->
+          <div class="card">
+            <div class="card-title">
+              <span>Màu Sắc (Light HSL)</span>
+            </div>
+            <div class="color-wheel">
+              <div class="color-indicator"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Navigation -->
+        <div class="bottom-nav">
+          <div class="nav-item active" onclick="setTab(this, 'Thiết Bị (Devices)')">
+            <div class="nav-icon">💡</div>
+            <span>Thiết bị</span>
+          </div>
+          <div class="nav-item" onclick="setTab(this, 'Nhóm (Groups)')">
+            <div class="nav-icon">👥</div>
+            <span>Nhóm</span>
+          </div>
+          <div class="nav-item" onclick="setTab(this, 'Kịch Bản (Scenes)')">
+            <div class="nav-icon">🎬</div>
+            <span>Kịch bản</span>
+          </div>
+          <div class="nav-item" onclick="setTab(this, 'Cài Đặt (Settings)')">
+            <div class="nav-icon">⚙️</div>
+            <span>Cài đặt</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Side Controls -->
+    <div class="control-panel">
+      <div class="panel-title">🎨 Vibe Code Trực Quan</div>
+      <p style="font-size: 13px; color: #94a3b8; margin-bottom: 16px;">
+        Thử nghiệm đổi màu sắc thương hiệu, tiêu đề, bố cục trước khi áp dụng vào mã nguồn Android XML thật.
+      </p>
+
+      <div class="panel-section">
+        <label>Tiêu đề App Bar</label>
+        <input type="text" id="inputAppTitle" value="Telink SIG Mesh" oninput="document.getElementById('appHeaderTitle').innerText = this.value">
+      </div>
+
+      <div class="panel-section">
+        <label>Màu Chủ Đạo (Theme Color)</label>
+        <select onchange="changeTheme(this.value)">
+          <option value="#0284c7">Xanh Dương Công Nghệ (Cyan/Blue)</option>
+          <option value="#10b981">Xanh Lá Hiện Đại (Emerald Green)</option>
+          <option value="#8b5cf6">Tím Neon (Purple Vibe)</option>
+          <option value="#f97316">Cam Năng Động (Orange)</option>
+          <option value="#0f172a">Đen Huyền Bí (Dark Mode OLED)</option>
+        </select>
+      </div>
+
+      <div class="panel-section">
+        <label>Thao tác nhanh</label>
+        <button class="btn-action" onclick="alert('Khi bạn ưng ý giao diện này, chỉ cần nói với AI: Áp dụng màu và bố cục này vào Android XML! AI sẽ viết code XML và commit ngay cho bạn.')">
+          ✨ Xác nhận thiết kế này với AI
+        </button>
+      </div>
+
+      <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #334155; font-size: 12px; color: #94a3b8; line-height: 1.6;">
+        <b>💡 Hướng dẫn Vibe Code:</b><br>
+        1. Mở file HTML này bằng Chrome hoặc Edge.<br>
+        2. Tự do nghịch và tưởng tượng tính năng bạn muốn.<br>
+        3. Nói cho AI những gì bạn muốn đổi trên app, AI sẽ biến nó thành code Android thật!
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function changeTheme(color) {
+      document.getElementById('appStatusBar').style.backgroundColor = color;
+      document.getElementById('appHeader').style.backgroundColor = color;
+      document.getElementById('netBadge').style.backgroundColor = color;
+      document.querySelectorAll('input[type=range]').forEach(el => {
+        el.style.accentColor = color;
+      });
+      document.querySelectorAll('.toggle.active').forEach(el => {
+        el.style.backgroundColor = color;
+      });
+    }
+
+    function allOnOff(turnOn) {
+      document.querySelectorAll('.toggle').forEach(t => {
+        if (turnOn) t.classList.add('active');
+        else t.classList.remove('active');
+      });
+    }
+
+    function setTab(element, title) {
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      element.classList.add('active');
+      document.getElementById('appHeaderTitle').innerText = title;
+    }
+
+    let devCount = 3;
+    function addMockDevice() {
+      devCount++;
+      const div = document.createElement('div');
+      div.className = 'device-row';
+      div.innerHTML = `
+        <div class="device-info">
+          <div class="device-icon">💡</div>
+          <div>
+            <div class="device-name">Đèn Mới #${devCount}</div>
+            <div class="device-meta">Unicast: 0x000${devCount + 1} • TLSR8258</div>
+          </div>
+        </div>
+        <div class="toggle active" onclick="this.classList.toggle('active')"></div>
+      `;
+      document.getElementById('deviceListContainer').appendChild(div);
+      document.getElementById('deviceCount').innerText = devCount + ' nodes';
+    }
+  </script>
+</body>
+</html>
