@@ -35,3 +35,4 @@ jobs:
           name: TelinkSigMesh-Custom-APK
           path: TelinkBleMeshDemo/build/outputs/apk/release/*.apk
           retention-days: 30
+
